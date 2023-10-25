@@ -2,6 +2,7 @@ package com.example.actividad7;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
@@ -9,7 +10,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.app.PendingIntent;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
 
@@ -27,10 +27,10 @@ public class MainActivity extends AppCompatActivity {
         createNotificationChannel();
 
         button.setOnClickListener(new View.OnClickListener() {
-            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://darling-in-the-franxx.fandom.com/es/wiki/Zero_Two"));
-            PendingIntent pendingIntent = PendingIntent.getActivity(MainActivity.this, 0,intent, PendingIntent.FLAG_IMMUTABLE);
             @Override
             public void onClick(View view) {
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://darling-in-the-franxx.fandom.com/es/wiki/Zero_Two"));
+                PendingIntent pendingIntent = PendingIntent.getActivity(MainActivity.this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
                 sendNotification();
             }
         });
@@ -57,10 +57,25 @@ public class MainActivity extends AppCompatActivity {
                 .setContentText("QUIERO DORMIRRRRR")
                 .setSmallIcon(R.mipmap.ic_launcher);
 
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        notificationBuilder.setContentIntent(pendingIntent);
+        // Intent para abrir el enlace web
+        Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://darling-in-the-franxx.fandom.com/es/wiki/Zero_Two"));
+        PendingIntent webPendingIntent = PendingIntent.getActivity(this, 0, webIntent, PendingIntent.FLAG_IMMUTABLE);
+
+        // Intent para realizar una llamada
+        Intent callIntent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:6145112734")); // Reemplaza "123456789" con el número de teléfono que deseas
+        PendingIntent callPendingIntent = PendingIntent.getActivity(this, 1, callIntent, PendingIntent.FLAG_IMMUTABLE);
+
+        // Intent para abrir Google Maps
+        Uri gmmIntentUri = Uri.parse("geo:0,0?q=lat,lng");
+        Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+        mapIntent.setPackage("com.google.android.apps.maps");
+        PendingIntent mapPendingIntent = PendingIntent.getActivity(this, 2, mapIntent, PendingIntent.FLAG_IMMUTABLE);
+
+        // Agregar las acciones a la notificación
+        notificationBuilder.setContentIntent(webPendingIntent); // Acción principal al tocar la notificación
+        notificationBuilder.addAction(0, "Página Web", webPendingIntent); // Abrir página web
+        notificationBuilder.addAction(0, "Llamar", callPendingIntent); // Realizar llamada
+        notificationBuilder.addAction(0, "Maps", mapPendingIntent); // Abrir Maps
 
         notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build());
     }
